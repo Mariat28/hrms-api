@@ -1,23 +1,45 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-const userSchema = new mongoose.Schema({
+const User = sequelize.define('User', {
     surname: {
-        type: String,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    otherName : {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    password: {
-        type: String,
-        required: true,
+    otherName: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
     photo: {
-        type: String,  // Store base64 string
-        required: false,
+        type: DataTypes.TEXT
     },
+    employeeNumber: {
+        type: DataTypes.STRING,
+        primaryKey: true
+    },
+    dateOfBirth: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    role_id: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: 'role', // Assumes role table exists
+            key: 'id'
+        }
+    },
+    created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+    updated_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+        onUpdate: DataTypes.NOW
+    }
+}, {
+    tableName: 'employee',
+    timestamps: false // We manage timestamps manually
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;
