@@ -1,4 +1,4 @@
-const { User } = require('../models/user');
+const User  = require('../models/user');
 const crypto = require('crypto');
 
 // Function to generate a unique numeric employee number
@@ -7,8 +7,8 @@ async function generateEmployeeNumber(surname,otherName) {
     const hashInput = `${surname}${otherName}${randomComponent}`;
     
     const hash = crypto.createHash('sha256').update(hashInput).digest('hex');
-    const numericPart = parseInt(hash.slice(0, 6), 16) % 1000000;
-    const employeeNumber = numericPart.toString().padStart(6, '0');
+    const numericPart = parseInt(hash.slice(0, 5), 16) % 1000000;
+    const employeeNumber = `DF${numericPart.toString().padStart(5, '0')}`;
 
     const exists = await User.findOne({ where: { employeeNumber } });
     if (exists) {
@@ -20,11 +20,11 @@ async function generateEmployeeNumber(surname,otherName) {
 // User controller
 const userController = {
     async createUser(req, res) {
+        const { surname, otherName, photo, dateOfBirth, role_id } = req.body;
         if (!surname || !otherName || !role_id) {
             return res.status(400).json({ error: 'Missing required fields' });
         }else{
         try {
-            const { surname, otherName, photo, dateOfBirth, role_id } = req.body;
 
             // Generate a unique employee number
             const employeeNumber = await generateEmployeeNumber({ surname, otherName });
