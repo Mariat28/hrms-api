@@ -1,45 +1,37 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-
+const Role = require('./role');
+// Define the User model
 const User = sequelize.define('User', {
     surname: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     otherName: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     photo: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
     },
     employeeNumber: {
         type: DataTypes.STRING,
-        primaryKey: true
+        primaryKey: true,
     },
     dateOfBirth: {
-        type: DataTypes.DATE,
-        allowNull: false
+        type: DataTypes.DATEONLY,
+        allowNull: false,
     },
     role_id: {
         type: DataTypes.INTEGER,
         references: {
-            model: 'role', // Assumes role table exists
-            key: 'id'
-        }
+            model: Role,
+            key: 'role_id', 
+        },
     },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-        onUpdate: DataTypes.NOW
-    }
 }, {
     tableName: 'employee',
-    timestamps: false // We manage timestamps manually
+    timestamps: false,
 });
 
 module.exports = User;

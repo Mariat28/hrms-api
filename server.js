@@ -2,7 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
-const userRoutes = require('./routes/userRoutes'); // Adjust the path as necessary
+const userRoutes = require('./routes/userRoutes');
 const sequelize = require('./config/db'); // Import your sequelize instance
 
 // Load environment variables from .env file
@@ -12,8 +12,8 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(bodyParser.json()); // Parse JSON bodies
-app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(bodyParser.json()); 
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Use user routes
 app.use('/api', userRoutes); // Adjust the API path as necessary

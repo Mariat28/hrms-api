@@ -1,5 +1,6 @@
-const User  = require('../models/user');
 const crypto = require('crypto');
+const models = require('../models');
+const { User, Role } = models;
 
 // Function to generate a unique numeric employee number
 async function generateEmployeeNumber(surname,otherName) {
@@ -50,12 +51,15 @@ const userController = {
                 photo: base64Photo, // Store the base64 encoded photo
                 employeeNumber,
                 dateOfBirth,
-                role_id,
-                createdAt: new Date(),
-                updatedAt: new Date()
+                role_id
             });
 
-            res.status(201).json(newUser);
+            res.status(201).json({
+                employeeNumber: newUser.employeeNumber,
+                surname: newUser.surname,
+                otherName: newUser.otherName,
+                dateOfBirth: newUser.dateOfBirth
+            });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }}
@@ -63,34 +67,51 @@ const userController = {
 
     async getAllUsers(req, res) {
         try {
-            const users = await User.findAll();
-            console.log('Retrieved users:', users); // Check the retrieved users
-            res.status(200).json(users);
+            const users = await User.findAll({
+                include: {
+                    model: Role,
+                    attributes: ['role_name'],
+                },
+            });
+            // Format the result to include role name with each user
+        const result = users.map(user => ({
+            employeeNumber: user.employeeNumber,
+            surname: user.surname,
+            otherName: user.otherName,
+            dateOfBirth: user.dateOfBirth,
+            roleName: user.Role.role_name, // Accessing the role name
+        }));
+            res.status(200).json(result);
         } catch (error) {
-            console.error('Error fetching users:', error); // Log the error
             res.status(400).json({ error: error.message });
         }
     },
-    async updateUser(req,res){
+    async updateUser(req, res) {
         try {
-            const { employeeNumber, surname, otherName, photo, dateOfBirth, role_id } = req.body;
+            const { employeeNumber, photo, dateOfBirth } = req.body;
     
             const user = await User.findByPk(employeeNumber);
-            if (!user) return res.status(404).json({ message: 'User not found' });
+            if (!user) return res.status(404).json({ error: 'User not found' });
+            const updateData = {};
+            if (photo !== null && photo !== undefined) updateData.photo = photo;
+            if (dateOfBirth !== null && dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+            if (Object.keys(updateData).length > 0) {
+                await user.update(updateData);
+            }
     
-            await user.update({
-                surname,
-                otherName,
-                photo,
-                dateOfBirth,
-                role_id
+            res.status(200).json({
+                employeeNumber: user.employeeNumber,
+                surname: user.surname,
+                otherName: user.otherName,
+                dateOfBirth: user.dateOfBirth,
+                photo: user.photo,
+                updatedAt: user.updated_at
             });
-    
-            res.status(200).json(user);
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
     }
+    
 };
 
 module.exports = userController;
