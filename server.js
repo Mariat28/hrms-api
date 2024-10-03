@@ -1,22 +1,25 @@
-// server.js
 const express = require('express');
-const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
-const userRoutes = require('./routes/userRoutes');
-const sequelize = require('./config/db'); // Import your sequelize instance
+const routes = require('./routes/Routes');
+const validateHeaders = require('./middleware/auth');
 
-// Load environment variables from .env file
 dotenv.config();
 
-// Initialize Express app
 const app = express();
 
 // Middleware
-app.use(bodyParser.json()); 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+app.use(validateHeaders);
 
-// Use user routes
-app.use('/api', userRoutes); // Adjust the API path as necessary
+//routes
+app.use('/api', routes); 
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Global Error:', err.message);
+    res.status(500).json({ error: 'An unexpected error occurred.' });
+});
 
 // Start the server
 const PORT = process.env.PORT || 3000;
