@@ -66,25 +66,39 @@ const userController = {
     },
 
     async getAllUsers(req, res) {
-        try {
-            const users = await User.findAll({
-                include: {
-                    model: Role,
-                    attributes: ['role_name'],
-                },
-            });
-            // Format the result to include role name with each user
-        const result = users.map(user => ({
-            employeeNumber: user.employeeNumber,
-            surname: user.surname,
-            otherName: user.otherName,
-            dateOfBirth: user.dateOfBirth,
-            roleName: user.Role.role_name, // Accessing the role name
-        }));
-            res.status(200).json(result);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
+        if(req.query.employeeNumber){
+            try{
+                const user = await User.findByPk(req.query.employeeNumber);
+                if (!user) {
+                    return res.status(404).json({ error: 'User not found' })
+                }else{
+                    return res.status(200).json(user);
+                };
+            }catch(error){
+                return res.status(400).json({ error: 'error fetching user details' });
+            }
+        }else{
+            try {
+                const users = await User.findAll({
+                    include: {
+                        model: Role,
+                        attributes: ['role_name'],
+                    },
+                });
+                // Format the result to include role name with each user
+            const result = users.map(user => ({
+                employeeNumber: user.employeeNumber,
+                surname: user.surname,
+                otherName: user.otherName,
+                dateOfBirth: user.dateOfBirth,
+                roleName: user.Role.role_name,
+            }));
+                return res.status(200).json(result);
+            } catch (error) {
+                return res.status(400).json({ error: error.message });
+            }
         }
+
     },
     async updateUser(req, res) {
         try {
