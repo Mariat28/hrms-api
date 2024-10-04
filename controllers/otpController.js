@@ -37,13 +37,13 @@ const generateOTP = async (req, res) => {
         // Send email
         try {
             await transporter.sendMail(mailOptions);
-            res.status(200).json({message:'OTP sent successfully.'});
+            return res.status(200).json({message:'OTP sent successfully.'});
         } catch (error) {
             console.error('Error sending email:', error);
-            res.status(500).json({ error: 'Failed to send email. Please try again later.' });
+            return res.status(500).json({ error: 'Failed to send email. Please try again later.' });
         }
     } else {
-        res.status(400).json({ error: "Error generating OTP! Please try again." });
+        return res.status(400).json({ error: "Error generating OTP! Please try again." });
     }
 }
 const generateUniqueOTP = async (userEmail) => {
@@ -94,8 +94,6 @@ const validateOTP = async (req,res) => {
         });
 
         if (OTPRecord) {
-            await OTPRecord.destroy();
-
             return res.status(200).json({ message: 'OTP validated successfully.' });
         } else {
             return res.status(400).json({ error: 'Invalid OTP or email address.' });

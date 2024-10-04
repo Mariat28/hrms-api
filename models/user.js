@@ -12,7 +12,7 @@ const User = sequelize.define('User', {
         allowNull: false,
     },
     photo: {
-        type: DataTypes.TEXT,
+        type: DataTypes.BLOB,
     },
     employeeNumber: {
         type: DataTypes.STRING,

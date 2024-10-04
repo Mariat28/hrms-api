@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const models = require('../models');
+const employeeOtp = require('../models/OTP');
 const { User, Role } = models;
 
 // Function to generate a unique numeric employee number
@@ -21,8 +22,8 @@ async function generateEmployeeNumber(surname,otherName) {
 // User controller
 const userController = {
     async createUser(req, res) {
-        const { surname, otherName, photo, dateOfBirth, role_id } = req.body;
-        if (!surname || !otherName || !role_id) {
+        const { surname, otherName, photo, dateOfBirth, roleId, userOtp} = req.body;
+        if (!surname || !otherName || !roleId || !dateOfBirth) {
             return res.status(400).json({ error: 'Missing required fields' });
         }else{
         try {
@@ -30,28 +31,13 @@ const userController = {
             // Generate a unique employee number
             const employeeNumber = await generateEmployeeNumber({ surname, otherName });
 
-            // Ensure the photo is base64 encoded
-            // Assuming the `photo` comes as a file path or raw data, convert it to base64
-            let base64Photo;
-            if (photo) {
-                // If photo is a file path, read the file and convert it to base64
-                if (typeof photo === 'string') {
-                    const fs = require('fs');
-                    const imageBuffer = fs.readFileSync(photo);
-                    base64Photo = imageBuffer.toString('base64');
-                } else {
-                    // If photo is already in base64 format, use it directly
-                    base64Photo = photo;
-                }
-            }
-
             const newUser = await User.create({
                 surname,
                 otherName,
-                photo: base64Photo, // Store the base64 encoded photo
+                photo: photo,
                 employeeNumber,
                 dateOfBirth,
-                role_id
+                role_id:roleId
             });
 
             res.status(201).json({
@@ -60,8 +46,12 @@ const userController = {
                 otherName: newUser.otherName,
                 dateOfBirth: newUser.dateOfBirth
             });
+            // Find the OTP record
+            const OTPRecord = await employeeOtp.findOne({where: {OTP: userOtp}});
+            await OTPRecord.destroy();
+            
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: error.message });
         }}
     },
 
