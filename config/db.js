@@ -7,18 +7,17 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     dialect: 'mysql'
 });
 
-// Function to test the connection and synchronize models
 const initializeDatabase = async () => {
     try {
         await sequelize.authenticate();
         console.log('Database connected successfully.');
 
         // Synchronize models
-        await sequelize.sync(); // Call this to create tables if they don't exist
+        await sequelize.sync(); 
         console.log('Database synchronized successfully.');
     } catch (error) {
         console.error('Unable to connect to the database:', error);
-        process.exit(1); // Exit the process if the connection fails
+        process.exit(1); 
     }
 };
 

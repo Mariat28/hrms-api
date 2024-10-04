@@ -88,9 +88,11 @@ const userController = {
     },
     async updateUser(req, res) {
         try {
-            const { photo, dateOfBirth } = req.body;
-    
-            const user = await User.findByPk(req.params.employeeNumber);
+            const { photo, dateOfBirth,employeeNumber } = req.body;
+            if(!employeeNumber){
+                return res.status(400).json({ error: 'employeeNumber is mandatory!' })
+            }
+            const user = await User.findByPk(employeeNumber);
             if (!user) return res.status(404).json({ error: 'User not found' });
             const updateData = {};
             if (photo !== null && photo !== undefined) updateData.photo = photo;
@@ -104,8 +106,7 @@ const userController = {
                 surname: user.surname,
                 otherName: user.otherName,
                 dateOfBirth: user.dateOfBirth,
-                photo: user.photo,
-                updatedAt: user.updated_at
+                photo: user.photo
             });
         } catch (error) {
             res.status(400).json({ error: error.message });
