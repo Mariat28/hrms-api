@@ -2,13 +2,14 @@ const Log=require('../models/log');
 const createLog = async(req,res)=>{
     try {
         const logData = {
-          type: req.body.type,
-          method: req.body.method,
-          url: req.body.url,
-          status: req.body.status,
-          statusText: req.body.statusText,
-          headers: req.body.headers,
-          data: req.body.data,
+            type: req.body.type,
+            method: req.body.method,
+            url: req.body.url,
+            headers: JSON.stringify(req.body.headers),
+            requestData: JSON.stringify(req.body.data),
+            responseStatus: req.body.responseStatus,
+            responseData: JSON.stringify(req.body.responseData),
+            timestamp: req.body.timestamp
         };
     
         const log = await Log.create(logData);

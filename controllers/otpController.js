@@ -82,7 +82,7 @@ const saveOTP = async ({ emailAddress, userOtp }) => {
 const validateOTP = async (req,res) => {
     const{userEmail, userOtp} =req.body;
     if(!userEmail || !userOtp){
-        res.status(400).json({error:"Missing mandatory fields!"})
+        return res.status(400).json({error:"Missing mandatory fields!"})
     }
     try {
         // Find the OTP record
@@ -96,13 +96,13 @@ const validateOTP = async (req,res) => {
         if (OTPRecord) {
             await OTPRecord.destroy();
 
-            res.status(200).json({ message: 'OTP validated successfully.' });
+            return res.status(200).json({ message: 'OTP validated successfully.' });
         } else {
-            res.status(400).json({ error: 'Invalid OTP or email address.' });
+            return res.status(400).json({ error: 'Invalid OTP or email address.' });
         }
     } catch (error) {
         console.error('Error validating and deleting OTP:', error);
-        res.status(400).json( { error: 'An error occurred while validating the OTP.' });
+        return res.status(400).json( { error: 'An error occurred while validating the OTP.' });
     }
 };
 

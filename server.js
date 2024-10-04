@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const routes = require('./routes/Routes');
 const validateHeaders = require('./middleware/auth');
 
@@ -7,6 +8,12 @@ dotenv.config();
 
 const app = express();
 
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-API-KEY']
+  }));
+  
 // Middleware
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));

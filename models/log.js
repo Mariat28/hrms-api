@@ -15,21 +15,21 @@ const Log = sequelize.define('Log', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  status: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  statusText: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-  },
   headers: {
     type: DataTypes.JSON,
     allowNull: true,
   },
-  data: {
+  requestData: {
     type: DataTypes.JSON,
     allowNull: false,
+  },
+  responseStatus: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  responseData: {
+    type: DataTypes.TEXT,
+    allowNull: true,
   },
   timestamp: {
     type: DataTypes.DATE,
