@@ -1,4 +1,3 @@
-// models/Log.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
@@ -20,8 +19,8 @@ const Log = sequelize.define('Log', {
     allowNull: true,
   },
   requestData: {
-    type: DataTypes.JSON,
-    allowNull: false,
+    type: DataTypes.TEXT,
+    allowNull: true,
   },
   responseStatus: {
     type: DataTypes.INTEGER,

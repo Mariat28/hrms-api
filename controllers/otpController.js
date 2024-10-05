@@ -40,10 +40,10 @@ const generateOTP = async (req, res) => {
             return res.status(200).json({message:'OTP sent successfully.'});
         } catch (error) {
             console.error('Error sending email:', error);
-            return res.status(500).json({ error: 'Failed to send email. Please try again later.' });
+            return res.status(500).json({ message: 'Failed to send email. Please try again later.' });
         }
     } else {
-        return res.status(400).json({ error: "Error generating OTP! Please try again." });
+        return res.status(400).json({ message: "Error generating OTP! Please try again." });
     }
 }
 const generateUniqueOTP = async (userEmail) => {
@@ -82,7 +82,7 @@ const saveOTP = async ({ emailAddress, userOtp }) => {
 const validateOTP = async (req,res) => {
     const{userEmail, userOtp} =req.body;
     if(!userEmail || !userOtp){
-        return res.status(400).json({error:"Missing mandatory fields!"})
+        return res.status(400).json({message:"Missing mandatory fields!"})
     }
     try {
         // Find the OTP record
@@ -96,11 +96,11 @@ const validateOTP = async (req,res) => {
         if (OTPRecord) {
             return res.status(200).json({ message: 'OTP validated successfully.' });
         } else {
-            return res.status(400).json({ error: 'Invalid OTP or email address.' });
+            return res.status(400).json({ message: 'Invalid OTP or email address.' });
         }
     } catch (error) {
         console.error('Error validating and deleting OTP:', error);
-        return res.status(400).json( { error: 'An error occurred while validating the OTP.' });
+        return res.status(400).json( { message: 'An error occurred while validating the OTP.' });
     }
 };
 

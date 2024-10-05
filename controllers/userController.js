@@ -24,7 +24,7 @@ const userController = {
     async createUser(req, res) {
         const { surname, otherName, photo, dateOfBirth, roleId, userOtp} = req.body;
         if (!surname || !otherName || !roleId || !dateOfBirth) {
-            return res.status(400).json({ error: 'Missing required fields' });
+            return res.status(400).json({ message: 'Missing required fields' });
         }else{
         try {
 
@@ -51,7 +51,7 @@ const userController = {
             await OTPRecord.destroy();
             
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ message: error.message });
         }}
     },
 
@@ -60,12 +60,12 @@ const userController = {
             try{
                 const user = await User.findByPk(req.query.employeeNumber);
                 if (!user) {
-                    return res.status(404).json({ error: 'User not found' })
+                    return res.status(404).json({ message: 'User not found' })
                 }else{
                     return res.status(200).json(user);
                 };
             }catch(error){
-                return res.status(400).json({ error: 'error fetching user details' });
+                return res.status(400).json({ message: 'error fetching user details' });
             }
         }else{
             try {
@@ -82,25 +82,28 @@ const userController = {
                 otherName: user.otherName,
                 dateOfBirth: user.dateOfBirth,
                 roleName: user.Role.role_name,
+                roleId: user.Role.role_id,
+                photo: user.photo
             }));
                 return res.status(200).json(result);
             } catch (error) {
-                return res.status(400).json({ error: error.message });
+                return res.status(400).json({ message: error.message });
             }
         }
 
     },
     async updateUser(req, res) {
         try {
-            const { photo, dateOfBirth,employeeNumber } = req.body;
+            const { photo, dateOfBirth,employeeNumber,roleId } = req.body;
             if(!employeeNumber){
-                return res.status(400).json({ error: 'employeeNumber is mandatory!' })
+                return res.status(400).json({ message: 'employeeNumber is mandatory!' })
             }
             const user = await User.findByPk(employeeNumber);
-            if (!user) return res.status(404).json({ error: 'User not found' });
+            if (!user) return res.status(404).json({ message: 'User not found' });
             const updateData = {};
             if (photo !== null && photo !== undefined) updateData.photo = photo;
             if (dateOfBirth !== null && dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+            updateData.role_id=roleId
             if (Object.keys(updateData).length > 0) {
                 await user.update(updateData);
             }
@@ -113,7 +116,7 @@ const userController = {
                 photo: user.photo
             });
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(400).json({ message: error.message });
         }
     }
     
