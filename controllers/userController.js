@@ -4,18 +4,20 @@ const employeeOtp = require('../models/OTP');
 const { User, Role } = models;
 
 // Function to generate a unique numeric employee number
-async function generateEmployeeNumber(surname,otherName) {
-    const randomComponent = Math.floor(Math.random() * 10000);
-    const hashInput = `${surname}${otherName}${randomComponent}`;
-    
-    const hash = crypto.createHash('sha256').update(hashInput).digest('hex');
-    const numericPart = parseInt(hash.slice(0, 5), 16) % 1000000;
-    const employeeNumber = `DF${numericPart.toString().padStart(5, '0')}`;
+async function generateEmployeeNumber(surname, otherName) {
+    let employeeNumber;
+    let exists = true;
 
-    const exists = await User.findOne({ where: { employeeNumber } });
-    if (exists) {
-        return generateEmployeeNumber(userDetails);
+    while (exists) {
+        const randomComponent = Math.floor(Math.random() * 10000);
+        const hashInput = `${surname}${otherName}${randomComponent}`;
+        const hash = crypto.createHash('sha256').update(hashInput).digest('hex');
+        const numericPart = parseInt(hash.slice(0, 5), 16) % 1000000;
+        employeeNumber = `DF${numericPart.toString().padStart(5, '0')}`;
+        
+        exists = await User.findOne({ where: { employeeNumber } });
     }
+
     return employeeNumber;
 }
 
@@ -25,11 +27,11 @@ const userController = {
         const { surname, otherName, photo, dateOfBirth, roleId, userOtp} = req.body;
         if (!surname || !otherName || !roleId || !dateOfBirth) {
             return res.status(400).json({ message: 'Missing required fields' });
-        }else{
+        }        
         try {
 
             // Generate a unique employee number
-            const employeeNumber = await generateEmployeeNumber({ surname, otherName });
+            const employeeNumber = await generateEmployeeNumber(surname, otherName);
 
             const newUser = await User.create({
                 surname,
@@ -48,21 +50,26 @@ const userController = {
             });
             // Find the OTP record
             const OTPRecord = await employeeOtp.findOne({where: {OTP: userOtp}});
-            await OTPRecord.destroy();
-            
+            if (OTPRecord) {
+                await OTPRecord.destroy();
+            } else {
+                return res.status(400).json({ message: 'Invalid OTP or OTP not found.' });
+            }            
         } catch (error) {
             return res.status(500).json({ message: error.message });
-        }}
+        }
     },
 
     async getAllUsers(req, res) {
         if(req.query.employeeNumber){
             try{
-                const user = await User.findByPk(req.query.employeeNumber);
+                const user = await User.findOne({ where: { employeeNumber: req.query.employeeNumber },include:{model:Role,attributes:['role_name']} });
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' })
                 }else{
-                    return res.status(200).json(user);
+                    const userWithRole = user.get({ plain: true });
+                    userWithRole.Role = user.Role.role_name;
+                    return res.status(200).json(userWithRole);
                 };
             }catch(error){
                 return res.status(400).json({ message: 'error fetching user details' });
@@ -95,15 +102,16 @@ const userController = {
     async updateUser(req, res) {
         try {
             const { photo, dateOfBirth,employeeNumber,roleId } = req.body;
-            if(!employeeNumber){
-                return res.status(400).json({ message: 'employeeNumber is mandatory!' })
+            if(!employeeNumber || !roleId){
+                return res.status(400).json({ message: 'employeeNumber and roleId are mandatory!' })
+            }else if(!photo && !dateOfBirth && !roleId){
+                return res.status(400).json({ message: 'Atleast two fields is required for update!' })
             }
             const user = await User.findByPk(employeeNumber);
             if (!user) return res.status(404).json({ message: 'User not found' });
-            const updateData = {};
+            const updateData = {role_id:roleId};
             if (photo !== null && photo !== undefined) updateData.photo = photo;
             if (dateOfBirth !== null && dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
-            updateData.role_id=roleId
             if (Object.keys(updateData).length > 0) {
                 await user.update(updateData);
             }
@@ -116,7 +124,7 @@ const userController = {
                 photo: user.photo
             });
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            return res.status(400).json({ message: error.message });
         }
     }
     

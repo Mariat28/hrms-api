@@ -3,6 +3,13 @@ const crypto = require('crypto');
 const employeeOtp = require('../models/OTP');
 const generateOTP = async (req, res) => {
     const { userEmail } = req.body;
+    if(!userEmail){
+        return res.status(400).json({message:"Email address is mandatory"});
+    }else if(!userEmail.includes('gmail')){
+        return res.status(400).json({message:"Only gmail addresses are accepted"});
+    }else if(!userEmail.includes('@') || !userEmail.includes('.com')){
+        return res.status(400).json({message:"Invalid email address"});
+    }
     let saveOtpObject={};
     // Generate a random OTP
      const generatedOTP= await generateUniqueOTP(userEmail);
