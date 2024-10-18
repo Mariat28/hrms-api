@@ -29,6 +29,9 @@ const User = sequelize.define('User', {
             key: 'role_id', 
         },
     },
+    photoUrl:{
+        type: DataTypes.STRING, 
+    }
 }, {
     tableName: 'employee',
     timestamps: false,
