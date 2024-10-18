@@ -11,7 +11,7 @@ const initializeDatabase = async () => {
     try {
         await sequelize.authenticate();
         console.log('Database connected successfully.');
-//synchronize database on first deployment or after any model changes
+        //synchronize database on first deployment or after any model changes
         await sequelize.sync(); 
         console.log('Database synchronized successfully.');
     } catch (error) {

@@ -30,6 +30,9 @@ const generateOTP = async (req, res) => {
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.PASSWORD
+            },
+            tls: {
+                rejectUnauthorized: false      // Use this only for testing; it ignores self-signed certs
             }
         });
 
